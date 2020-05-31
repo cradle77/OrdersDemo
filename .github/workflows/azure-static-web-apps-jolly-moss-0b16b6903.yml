@@ -4,8 +4,8 @@ on:
   push:
     branches:
     - master
-    paths:
-      - 'Orders.UI/*'
+    paths: 
+      - 'Orders.UI/**'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
@@ -25,7 +25,7 @@ jobs:
         dotnet-version: 3.1.201
     
     - name: Build App
-      run: dotnet publish -c Release -o published
+      run: dotnet publish Orders.UI -c Release -o published
       
     - name: Build And Deploy
       id: builddeploy
