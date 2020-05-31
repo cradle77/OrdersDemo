@@ -23,13 +23,11 @@
         <div class="col-8">Total:</div>
         <div class="col-2">@string.Format("{0:c}", (_cart?.TotalAmount).GetValueOrDefault())</div>
     </div>
-    @if (_cart != null && _cart.Items.Count > 0)
-    { 
-        <div class="row">
-            <button class="btn btn-primary col-6" @onclick="this.CartService.DispatchCartAsync">Dispatch!</button>
-            <button class="btn btn-danger col-6" @onclick="this.CartService.EmptyCartAsync">Empty cart</button>
-        </div>
-    }
+    <div class="row">
+        <button class="btn btn-primary col-3" @onclick="this.LoadDataAsync"><span class="oi oi-reload"></span></button>
+        <button class="btn btn-primary col-5" @onclick="this.CartService.DispatchCartAsync">Dispatch!</button>
+        <button class="btn btn-danger col-4" @onclick="this.CartService.EmptyCartAsync">Empty</button>
+    </div>
 </div>
 
 @code {
@@ -39,14 +37,19 @@
     {
         base.OnInitialized();
 
-        _cart = await this.CartService.GetCart();
-
         this.CartService.CartUpdated += this.Refresh;
+
+        await this.LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _cart = await this.CartService.GetCart();
     }
 
     private async void Refresh(object sender, EventArgs e)
     {
-        _cart = await this.CartService.GetCart();
+        await this.LoadDataAsync();
 
         this.StateHasChanged();
     }
