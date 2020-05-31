@@ -1,0 +1,60 @@
+﻿@inject Orders.UI.Services.CartService CartService
+@implements IDisposable
+
+<h3>CartViewer</h3>
+
+<div class="nav-item cart px-3">
+    @if (_cart == null || _cart.Items.Count == 0)
+    {
+        <p><em>Your cart is empty..</em></p>
+    }
+    else
+    {
+        @foreach (var item in _cart.Items)
+        {
+            <div class="row">
+                <div class="col-1">@item.Quantity</div>
+                <div class="col-7">@item.Product.Name</div>
+                <div class="col-2">@string.Format("{0:c}", item.Amount)</div>
+            </div>
+        }
+    }
+    <div class="row total">
+        <div class="col-8">Total:</div>
+        <div class="col-2">@string.Format("{0:c}", (_cart?.TotalAmount).GetValueOrDefault())</div>
+    </div>
+</div>
+
+@code {
+    private Cart _cart;
+
+    protected async override Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        _cart = await this.CartService.GetCart();
+
+        this.CartService.CartUpdated += this.Refresh;
+    }
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        Console.WriteLine("Parameterset");
+
+
+    }
+
+    private async void Refresh(object sender, EventArgs e)
+    {
+        _cart = await this.CartService.GetCart();
+
+        this.StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        this.CartService.CartUpdated -= this.Refresh;
+    }
+}

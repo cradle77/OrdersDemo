@@ -61,12 +61,7 @@ namespace Orders.Backend
             var entityId = new EntityId("CartEntity", entityKey);
             var state = await client.ReadEntityStateAsync<CartEntity>(entityId);
 
-            if (!state.EntityExists)
-            { 
-                
-            }
-
-            return req.CreateResponse(state);
+            return req.CreateResponse(state.EntityState?.Cart ?? new Cart());
         }
 
         [FunctionName(nameof(AddProduct))]

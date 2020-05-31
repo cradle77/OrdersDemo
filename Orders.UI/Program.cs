@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Orders.UI.Services;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -34,7 +35,10 @@ namespace Orders.UI
             builder.Services.AddMsalAuthentication(options =>
             {
                 builder.Configuration.Bind("AzureAdB2C", options.ProviderOptions.Authentication);
+                
             });
+
+            builder.Services.AddScoped<CartService>();
 
             await builder.Build().RunAsync();
         }

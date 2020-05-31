@@ -1,6 +1,7 @@
 ﻿@page "/catalogue"
 @inject HttpClient Http
 @inject IConfiguration  Configuration
+@inject Orders.UI.Services.CartService CartService
 @attribute [Authorize]
 
 <h1>Product catalogue</h1>
@@ -26,7 +27,7 @@ else
                 </div>
                 <div class="row">@string.Format("{0:c}", product.Cost)</div>
                 <div>
-                    <button class="btn btn-primary">Add to cart</button>
+                    <button class="btn btn-primary" @onclick="@(async e => await this.CartService.AddProductToCartAsync(product))">Add to cart</button>
                 </div>
             </div>
         }

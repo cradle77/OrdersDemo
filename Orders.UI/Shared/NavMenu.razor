@@ -28,6 +28,18 @@
             </NavLink>
         </li>
     </ul>
+
+    <div class="nav cart px-3">
+        <AuthorizeView>
+            <Authorized>
+                <CartViewer></CartViewer>
+            </Authorized>
+            <NotAuthorized>
+                <p class="nav-item cart px-3"><em>Please login to see your cart</em></p>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+    
 </div>
 
 @code {
