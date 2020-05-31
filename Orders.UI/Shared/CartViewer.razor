@@ -3,7 +3,7 @@
 
 <h3>CartViewer</h3>
 
-<div class="nav-item cart px-3">
+<div class="nav-item cart px-3 container">
     @if (_cart == null || _cart.Items.Count == 0)
     {
         <p><em>Your cart is empty..</em></p>
@@ -23,6 +23,13 @@
         <div class="col-8">Total:</div>
         <div class="col-2">@string.Format("{0:c}", (_cart?.TotalAmount).GetValueOrDefault())</div>
     </div>
+    @if (_cart != null && _cart.Items.Count > 0)
+    { 
+        <div class="row">
+            <button class="btn btn-primary col-6" @onclick="this.CartService.DispatchCartAsync">Dispatch!</button>
+            <button class="btn btn-danger col-6" @onclick="this.CartService.EmptyCartAsync">Empty cart</button>
+        </div>
+    }
 </div>
 
 @code {
@@ -35,15 +42,6 @@
         _cart = await this.CartService.GetCart();
 
         this.CartService.CartUpdated += this.Refresh;
-    }
-
-    protected async override Task OnParametersSetAsync()
-    {
-        await base.OnParametersSetAsync();
-
-        Console.WriteLine("Parameterset");
-
-
     }
 
     private async void Refresh(object sender, EventArgs e)

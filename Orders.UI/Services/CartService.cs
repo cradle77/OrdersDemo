@@ -29,6 +29,24 @@ namespace Orders.UI.Services
             this.CartUpdated?.Invoke(this, EventArgs.Empty);
         }
 
+        public async Task EmptyCartAsync()
+        {
+            var username = await this.GetUsernameAsync();
+
+            await _client.DeleteAsync($"api/cart/{username}");
+
+            this.CartUpdated?.Invoke(this, EventArgs.Empty);
+        }
+
+        public async Task DispatchCartAsync()
+        {
+            var username = await this.GetUsernameAsync();
+
+            await _client.PostAsJsonAsync($"api/cart/{username}/dispatch", new object());
+
+            this.CartUpdated?.Invoke(this, EventArgs.Empty);
+        }
+
         public async Task<Cart> GetCart()
         {
             try
