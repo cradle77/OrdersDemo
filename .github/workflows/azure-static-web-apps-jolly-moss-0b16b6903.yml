@@ -6,6 +6,7 @@ on:
     - master
     paths: 
       - 'Orders.UI/**'
+      - 'Orders.Shared/**'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
