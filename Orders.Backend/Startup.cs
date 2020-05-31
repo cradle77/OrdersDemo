@@ -14,10 +14,8 @@ namespace Orders.Backend
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            string SqlConnection = Environment.GetEnvironmentVariable("ConnectionStrings:SqlConnectionString");
-
-            Console.WriteLine($"Connstr is: {SqlConnection}");
-
+            string SqlConnection = Environment.GetEnvironmentVariable("ConnectionStrings:SqlConnectionString") ??
+                Environment.GetEnvironmentVariable("SQLAZURECONNSTR_SqlConnectionString");
 
             builder.Services.AddDbContext<OrdersContext>(
                 options => options.UseSqlServer(SqlConnection));
