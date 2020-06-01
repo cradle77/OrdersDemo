@@ -31,8 +31,7 @@ namespace Orders.Backend
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "mycart/products")] HttpRequestMessage req,
             [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal)
         {
-            //var username = claimsPrincipal.FindFirst("name").Value;
-            var username = "Marco Des"; // claimsPrincipal.FindFirst("name").Value;
+            var username = claimsPrincipal.FindFirst("name").Value;
             var entityId = new EntityId("CartEntity", username);
 
             var body = await req.Content.ReadAsStringAsync();
@@ -65,7 +64,7 @@ namespace Orders.Backend
             [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal,
             [ServiceBus("ordersQueue", Connection = "ServiceBusConnection")] IAsyncCollector<Cart> collector)
         {
-            var username = "Marco Des"; // claimsPrincipal.FindFirst("name").Value;
+            var username = claimsPrincipal.FindFirst("name").Value;
             var entityId = new EntityId("CartEntity", username);
             var state = await client.ReadEntityStateAsync<CartEntity>(entityId);
 
