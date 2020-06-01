@@ -5,7 +5,7 @@ namespace Orders.Shared
 {
     public class Cart
     {
-        public string Id { get; set; }
+        public string Owner { get; set; }
 
         public List<CartItem> Items { get; set; } = new List<CartItem>();
 

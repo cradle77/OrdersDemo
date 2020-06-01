@@ -5,7 +5,9 @@ namespace Orders.Backend
 {
     public interface ICartActions
     {
-        Task AddAsync(Product product);
+        void Add(Product product);
+
+        void SetOwner(string owner);
 
         void Delete();
     }
