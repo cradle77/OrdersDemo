@@ -41,14 +41,14 @@ namespace Orders.Backend
 
             var tuple = new Tuple<EntityId, Product>(entityId, product);
 
-            var instanceId = await client.StartNewAsync("AddProductOrchestration", tuple);
+            var instanceId = await client.StartNewAsync(nameof(AddProductOrchestration), tuple);
 
             DurableOrchestrationStatus status;
 
             while ((status = await client.GetStatusAsync(instanceId)).RuntimeStatus != OrchestrationRuntimeStatus.Completed)
             {
-                log.LogInformation("waiting 100ms");
-                await Task.Delay(100);
+                log.LogInformation("waiting 500ms");
+                await Task.Delay(500);
             }
 
             return req.CreateResponse(HttpStatusCode.Created, status.Output);
@@ -60,7 +60,7 @@ namespace Orders.Backend
             var (entityId, product) = ctx.GetInput<Tuple<EntityId, Product>>();
 
             var proxy = ctx.CreateEntityProxy<ICartActions>(entityId);
-
+            
             proxy.Add(product);
 
             var currentState = await proxy.Get();

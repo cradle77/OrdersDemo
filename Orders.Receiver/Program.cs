@@ -1,5 +1,8 @@
-﻿using Microsoft.Azure.ServiceBus;
+﻿using ConsoleTables;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Orders.Shared;
 using System;
 using System.Text;
 using System.Threading;
@@ -53,8 +56,22 @@ namespace Orders.Receiver
 
         static async Task ProcessMessagesAsync(Message message, CancellationToken token)
         {
-            // Process the message.
-            Console.WriteLine($"Received message: SequenceNumber:{message.SystemProperties.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}");
+            var cart = JsonConvert.DeserializeObject<Cart>(Encoding.UTF8.GetString(message.Body));
+
+            Console.WriteLine("\r\n\r\n");
+            Console.WriteLine($"New Order for {cart.Owner} Received!!");
+
+            var table = new ConsoleTable("Product", "Quantity", "Amount");
+
+            foreach (var item in cart.Items)
+            {
+                table.AddRow(item.Product.Name, item.Quantity, item.Amount.ToString("c"));
+            }
+
+            table.AddRow("", "Total:", cart.TotalAmount);
+
+            table.Write();
+            Console.WriteLine();
 
             // Complete the message so that it is not received again.
             // This can be done only if the queue Client is created in ReceiveMode.PeekLock mode (which is the default).
