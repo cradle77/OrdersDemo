@@ -7,6 +7,7 @@ using Orders.Shared;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Orders.Backend
@@ -54,11 +55,12 @@ namespace Orders.Backend
 
         [FunctionName(nameof(GetCart))]
         public static async Task<HttpResponseMessage> GetCart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "cart/{entityKey}")] HttpRequestMessage req,
-            [DurableClient] IDurableEntityClient client,
-            string entityKey)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mycart")] HttpRequestMessage req,
+            [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal)
         {
-            var entityId = new EntityId("CartEntity", entityKey);
+            var username = claimsPrincipal.FindFirst("name").Value;
+
+            var entityId = new EntityId("CartEntity", username);
             var state = await client.ReadEntityStateAsync<CartEntity>(entityId);
 
             return req.CreateResponse(state.EntityState?.Cart ?? new Cart());
@@ -66,11 +68,11 @@ namespace Orders.Backend
 
         [FunctionName(nameof(AddProduct))]
         public static async Task<HttpResponseMessage> AddProduct(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "cart/{entityKey}/products")] HttpRequestMessage req,
-            [DurableClient] IDurableEntityClient client,
-            string entityKey)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "mycart/products")] HttpRequestMessage req,
+            [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal)
         {
-            var entityId = new EntityId("CartEntity", entityKey);
+            var username = claimsPrincipal.FindFirst("name").Value;
+            var entityId = new EntityId("CartEntity", username);
 
             var body = await req.Content.ReadAsStringAsync();
 
@@ -83,11 +85,11 @@ namespace Orders.Backend
 
         [FunctionName(nameof(DeleteCart))]
         public static async Task<HttpResponseMessage> DeleteCart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "cart/{entityKey}")] HttpRequestMessage req,
-            [DurableClient] IDurableEntityClient client,
-            string entityKey)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "mycart")] HttpRequestMessage req,
+            [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal)
         {
-            var entityId = new EntityId("CartEntity", entityKey);
+            var username = claimsPrincipal.FindFirst("name").Value;
+            var entityId = new EntityId("CartEntity", username);
 
             var body = await req.Content.ReadAsStringAsync();
 

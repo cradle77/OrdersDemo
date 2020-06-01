@@ -22,27 +22,21 @@ namespace Orders.UI.Services
 
         public async Task AddProductToCartAsync(Product item)
         {
-            var username = await this.GetUsernameAsync();
-
-            await _client.PostAsJsonAsync($"api/cart/{username}/products", item);
+            await _client.PostAsJsonAsync($"api/mycart/products", item);
 
             this.CartUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         public async Task EmptyCartAsync()
         {
-            var username = await this.GetUsernameAsync();
-
-            await _client.DeleteAsync($"api/cart/{username}");
+            await _client.DeleteAsync($"api/mycart/");
 
             this.CartUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         public async Task DispatchCartAsync()
         {
-            var username = await this.GetUsernameAsync();
-
-            await _client.PostAsJsonAsync($"api/cart/{username}/dispatch", new object());
+            await _client.PostAsJsonAsync($"api/mycart/dispatch", new object());
 
             this.CartUpdated?.Invoke(this, EventArgs.Empty);
         }
@@ -51,9 +45,7 @@ namespace Orders.UI.Services
         {
             try
             {
-                var username = await this.GetUsernameAsync();
-
-                return await _client.GetFromJsonAsync<Cart>($"api/cart/{username}");
+                return await _client.GetFromJsonAsync<Cart>($"api/mycart/");
             }
             catch
             {
