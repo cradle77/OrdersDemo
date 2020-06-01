@@ -9,6 +9,8 @@ namespace Orders.Backend
 
         void SetOwner(string owner);
 
+        Task<Cart> Get();
+
         void Delete();
     }
 }

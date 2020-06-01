@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orders.Backend", "Orders.Ba
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orders.Shared", "Orders.Shared\Orders.Shared.csproj", "{F2202515-C2D3-4660-B574-3248CAF73CC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders.Receiver", "Orders.Receiver\Orders.Receiver.csproj", "{3AF38D27-D527-4067-BF09-0776B689B52C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orders.Receiver", "Orders.Receiver\Orders.Receiver.csproj", "{3AF38D27-D527-4067-BF09-0776B689B52C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

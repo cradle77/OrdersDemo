@@ -28,6 +28,11 @@ namespace Orders.Backend
             }
         }
 
+        public Task<Cart> Get()
+        {
+            return Task.FromResult(this.Cart);
+        }
+
         public void SetOwner(string owner)
         {
             this.Cart.Owner = owner;

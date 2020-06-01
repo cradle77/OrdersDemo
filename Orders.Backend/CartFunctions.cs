@@ -1,8 +1,10 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Orders.Shared;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
@@ -29,20 +31,41 @@ namespace Orders.Backend
         [FunctionName(nameof(AddProduct))]
         public static async Task<HttpResponseMessage> AddProduct(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "mycart/products")] HttpRequestMessage req,
-            [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal)
+            [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal, ILogger log)
         {
             var username = claimsPrincipal.FindFirst("name").Value;
             var entityId = new EntityId("CartEntity", username);
 
             var body = await req.Content.ReadAsStringAsync();
-
             var product = JsonConvert.DeserializeObject<Product>(body);
 
-            await client.SignalEntityAsync<ICartActions>(entityId, x => x.SetOwner(username));
+            var tuple = new Tuple<EntityId, Product>(entityId, product);
 
-            await client.SignalEntityAsync<ICartActions>(entityId, x => x.Add(product));
+            var instanceId = await client.StartNewAsync("AddProductOrchestration", tuple);
 
-            return req.CreateResponse(HttpStatusCode.Created);
+            DurableOrchestrationStatus status;
+
+            while ((status = await client.GetStatusAsync(instanceId)).RuntimeStatus != OrchestrationRuntimeStatus.Completed)
+            {
+                log.LogInformation("waiting 100ms");
+                await Task.Delay(100);
+            }
+
+            return req.CreateResponse(HttpStatusCode.Created, status.Output);
+        }
+
+        [FunctionName(nameof(AddProductOrchestration))]
+        public static async Task<Cart> AddProductOrchestration([OrchestrationTrigger] IDurableOrchestrationContext ctx)
+        {
+            var (entityId, product) = ctx.GetInput<Tuple<EntityId, Product>>();
+
+            var proxy = ctx.CreateEntityProxy<ICartActions>(entityId);
+
+            proxy.Add(product);
+
+            var currentState = await proxy.Get();
+
+            return currentState;
         }
 
         [FunctionName(nameof(DeleteCart))]
