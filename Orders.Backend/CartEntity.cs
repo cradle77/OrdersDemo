@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Orders.Shared;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,6 +10,8 @@ namespace Orders.Backend
     public class CartEntity : ICartActions
     {
         public Cart Cart { get; set; } = new Cart();
+
+        public DateTime TimeStamp { get; set; }
 
         public void Add(Product product)
         {
@@ -26,6 +29,8 @@ namespace Orders.Backend
                     Quantity = 1
                 });
             }
+
+            this.TimeStamp = DateTime.Now;
         }
 
         public Task<Cart> Get()

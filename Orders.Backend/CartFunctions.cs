@@ -1,7 +1,6 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Orders.Shared;
 using System;
@@ -31,41 +30,24 @@ namespace Orders.Backend
         [FunctionName(nameof(AddProduct))]
         public static async Task<HttpResponseMessage> AddProduct(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "mycart/products")] HttpRequestMessage req,
-            [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal, ILogger log)
+            [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal)
         {
             var username = claimsPrincipal.FindFirst("name").Value;
             var entityId = new EntityId("CartEntity", username);
 
             var body = await req.Content.ReadAsStringAsync();
+
             var product = JsonConvert.DeserializeObject<Product>(body);
 
-            var tuple = new Tuple<EntityId, Product>(entityId, product);
+            var awaiter = client.GetTimestampAwaiter(entityId);
 
-            var instanceId = await client.StartNewAsync(nameof(AddProductOrchestration), tuple);
+            await client.SignalEntityAsync<ICartActions>(entityId, x => x.SetOwner(username));
 
-            DurableOrchestrationStatus status;
+            await client.SignalEntityAsync<ICartActions>(entityId, x => x.Add(product));
 
-            while ((status = await client.GetStatusAsync(instanceId)).RuntimeStatus != OrchestrationRuntimeStatus.Completed)
-            {
-                log.LogInformation("waiting 500ms");
-                await Task.Delay(500);
-            }
+            await awaiter.SignalsProcessed();
 
-            return req.CreateResponse(HttpStatusCode.Created, status.Output);
-        }
-
-        [FunctionName(nameof(AddProductOrchestration))]
-        public static async Task<Cart> AddProductOrchestration([OrchestrationTrigger] IDurableOrchestrationContext ctx)
-        {
-            var (entityId, product) = ctx.GetInput<Tuple<EntityId, Product>>();
-
-            var proxy = ctx.CreateEntityProxy<ICartActions>(entityId);
-            
-            proxy.Add(product);
-
-            var currentState = await proxy.Get();
-
-            return currentState;
+            return req.CreateResponse(HttpStatusCode.Created);
         }
 
         [FunctionName(nameof(DeleteCart))]
@@ -76,7 +58,11 @@ namespace Orders.Backend
             var username = claimsPrincipal.FindFirst("name").Value;
             var entityId = new EntityId("CartEntity", username);
 
+            var awaiter = client.GetDeletedAwaiter(entityId);
+
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.Delete());
+
+            await awaiter.SignalsProcessed();
 
             return req.CreateResponse(HttpStatusCode.Accepted);
         }
@@ -99,8 +85,12 @@ namespace Orders.Backend
 
             await collector.AddAsync(state.EntityState.Cart);
 
+            var awaiter = client.GetDeletedAwaiter(entityId);
+
             // empty cart once it has been dispatched
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.Delete());
+
+            await awaiter.SignalsProcessed();
 
             return req.CreateResponse(HttpStatusCode.Accepted);
         }
