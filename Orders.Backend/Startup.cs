@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Orders.Backend.Data;
-using Polly;
 using System;
 
 [assembly: FunctionsStartup(typeof(Orders.Backend.Startup))]
