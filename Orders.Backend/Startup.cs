@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Orders.Backend.Data;
+using Polly;
 using System;
 
 [assembly: FunctionsStartup(typeof(Orders.Backend.Startup))]
@@ -18,7 +19,10 @@ namespace Orders.Backend
                 Environment.GetEnvironmentVariable("SQLAZURECONNSTR_SqlConnectionString");
 
             builder.Services.AddDbContext<OrdersContext>(
-                options => options.UseSqlServer(SqlConnection));
+                options => options.UseSqlServer(SqlConnection, configure => 
+                {
+                    configure.EnableRetryOnFailure();
+                }));
         }
     }
 }
