@@ -68,7 +68,7 @@ namespace Orders.Receiver
                 table.AddRow(item.Product.Name, item.Quantity, item.Amount.ToString("c"));
             }
 
-            table.AddRow("", "Total:", cart.TotalAmount);
+            table.AddRow("", "Total:", cart.TotalAmount.ToString("c"));
 
             table.Write();
             Console.WriteLine();

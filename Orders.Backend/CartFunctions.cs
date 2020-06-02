@@ -3,6 +3,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json;
 using Orders.Shared;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
@@ -38,9 +39,13 @@ namespace Orders.Backend
 
             var product = JsonConvert.DeserializeObject<Product>(body);
 
+            var awaiter = client.GetTimestampAwaiter(entityId);
+
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.SetOwner(username));
 
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.Add(product));
+
+            await awaiter.SignalsProcessed();
 
             return req.CreateResponse(HttpStatusCode.Created);
         }
@@ -53,7 +58,11 @@ namespace Orders.Backend
             var username = claimsPrincipal.FindFirst("name").Value;
             var entityId = new EntityId("CartEntity", username);
 
+            var awaiter = client.GetDeletedAwaiter(entityId);
+
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.Delete());
+
+            await awaiter.SignalsProcessed();
 
             return req.CreateResponse(HttpStatusCode.Accepted);
         }
@@ -76,8 +85,12 @@ namespace Orders.Backend
 
             await collector.AddAsync(state.EntityState.Cart);
 
+            var awaiter = client.GetDeletedAwaiter(entityId);
+
             // empty cart once it has been dispatched
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.Delete());
+
+            await awaiter.SignalsProcessed();
 
             return req.CreateResponse(HttpStatusCode.Accepted);
         }
