@@ -6,9 +6,9 @@ on:
   push:
     branches:
     - master
-    paths: 
-      - 'Orders.Backend/**'
-      - 'Orders.Shared/**'
+    #paths: 
+    #  - 'Orders.Backend/**'
+    #  - 'Orders.Shared/**'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
@@ -34,6 +34,7 @@ jobs:
     - name: 'Resolve Project Dependencies Using Dotnet'
       shell: bash
       run: |
+        mkdir './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
         pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
         dotnet build Orders.Backend --configuration Release --output ./published
         popd
