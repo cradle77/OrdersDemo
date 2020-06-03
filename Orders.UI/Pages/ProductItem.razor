@@ -16,7 +16,7 @@
                 <li class="list-inline-item m-0"><i class="fa fa-star-o text-gray"></i></li>
             </ul>
         </div>
-        <button class="btn btn-primary" @onclick="@(async e => await this.CartService.AddProductToCartAsync(this.Product))">Add to cart</button>
+        <button class="btn btn-primary" @onclick="this.AddToCart">Add to cart</button>
     </div><img src="@GetImageUrl(this.Product.ImageUrl)" alt="Generic placeholder image" width="200" class="ml-lg-5 order-1 order-lg-2">
 </div> <!-- End -->
 
@@ -24,6 +24,10 @@
     [Parameter]
     public Product Product { get; set; }
 
+    public async Task AddToCart()
+    {
+        await this.CartService.AddProductToCartAsync(this.Product);
+    }
 
     private string GetImageUrl(string imageUrl)
     {
