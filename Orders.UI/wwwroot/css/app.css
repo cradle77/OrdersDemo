@@ -46,6 +46,15 @@ app {
     text-overflow: ellipsis;
 }
 
+.text-gray {
+    color: #aaa
+}
+
+img {
+    height: 200px;
+    width: 300px
+}
+
 .cart {
     color: #d7d7d7;
 }

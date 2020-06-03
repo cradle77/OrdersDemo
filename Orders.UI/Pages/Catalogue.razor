@@ -1,38 +1,36 @@
 ﻿@page "/catalogue"
 @inject HttpClient Http
-@inject IConfiguration  Configuration
-@inject Orders.UI.Services.CartService CartService
 @attribute [Authorize]
 
-<h1>Product catalogue</h1>
-
-@if (_products == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <div class="row flow-offset-1">
-        @foreach (var product in _products)
-        {
-            <div class="col-xs-6 col-md-4">
-                <div class="row" style="width:300px">
-                    <img src="@GetImageUrl(product.ImageUrl)" class="rounded mx-auto d-block" width="300px" />
-                </div>
-                <div class="row">
-                    <h3>@product.Name</h3>
-                </div>
-                <div class="row">
-                    <p>@product.Description</p>
-                </div>
-                <div class="row">@string.Format("{0:c}", product.Cost)</div>
-                <div>
-                    <button class="btn btn-primary" @onclick="@(async e => await this.CartService.AddProductToCartAsync(product))">Add to cart</button>
-                </div>
-            </div>
-        }
+<div class="container py-5">
+    <div class="row text-center mb-5">
+        <div class="col-lg-7 mx-auto">
+            <h1 class="display-4">Product List</h1>
+        </div>
     </div>
-}
+    @if (_products == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <ul class="list-group shadow">
+                    @foreach (var product in _products)
+                    {
+                        <li class="list-group-item">
+                            <ProductItem Product="product" />
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="row flow-offset-1">
+
+        </div>
+    }
+</div>
 
 @code {
     private Product[] _products;
@@ -40,10 +38,5 @@ else
     protected override async Task OnInitializedAsync()
     {
         _products = await Http.GetFromJsonAsync<Product[]>("api/products");
-    }
-
-    private string GetImageUrl(string imageUrl)
-    {
-        return string.Concat(this.Configuration["BaseAssetsUrl"], imageUrl);
     }
 }
