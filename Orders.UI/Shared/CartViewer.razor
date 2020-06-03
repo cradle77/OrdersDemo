@@ -24,11 +24,11 @@
         <div class="col-2">@string.Format("{0:c}", (_cart?.TotalAmount).GetValueOrDefault())</div>
     </div>
     <div class="row">
-        <div class="col-6 align-content-md-start">
-            <button class="btn btn-primary" @onclick="this.CartService.DispatchCartAsync">Order!</button>
+        <div class="col-6 align-content-md-start" style="padding:0">
+            <BusyButton class="btn btn-primary" OnClick="this.CartService.DispatchCartAsync">Order!</BusyButton>
         </div>
-        <div class="col-6 align-content-md-end">
-            <button class="btn btn-danger" @onclick="this.CartService.EmptyCartAsync">Empty</button>    
+        <div class="col-6 align-content-md-end" style="padding:0">
+            <BusyButton class="btn btn-danger" OnClick="this.CartService.EmptyCartAsync">Empty!</BusyButton>
         </div>
     </div>
 </div>

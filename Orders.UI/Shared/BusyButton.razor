@@ -1,0 +1,47 @@
+﻿<button class="@CssClass" disabled="@IsBusy" @onclick="this.HandleClick">
+    @if (IsBusy)
+    {
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    }
+    <span>@ChildContent</span>
+</button>
+
+@code {
+    [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
+
+    private string CssClass
+    {
+        get
+        {
+            if (AdditionalAttributes != null &&
+                AdditionalAttributes.TryGetValue("class", out var @class) &&
+                !string.IsNullOrEmpty(Convert.ToString(@class)))
+            {
+                return $"{@class}";
+            }
+
+            return string.Empty;
+        }
+    }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public bool IsBusy { get; set; }
+
+    public async Task HandleClick(MouseEventArgs args)
+    {
+        try
+        {
+            IsBusy = true;
+            await this.OnClick.InvokeAsync(args);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+}
