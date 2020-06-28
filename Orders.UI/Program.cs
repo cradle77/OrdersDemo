@@ -17,19 +17,19 @@ namespace Orders.UI
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddHttpClient("api", client =>
-            {
-                client.BaseAddress = new Uri("https://ordersdemo.azurewebsites.net");
-            })
-            .AddHttpMessageHandler(sp =>
-             {
-                 var handler = sp.GetService<AuthorizationMessageHandler>()
-                     .ConfigureHandler(
-                         authorizedUrls: new[] { "https://ordersdemo.azurewebsites.net" },
-                         scopes: new[] { "https://BlazorB2C.onmicrosoft.com/49a5ea34-2ea6-42bb-9ed4-6076e169b1fc/Api.Access" });
+            builder.Services
+                .AddHttpClient("api",
+                    client => { client.BaseAddress = new Uri("https://ordersdemo.azurewebsites.net"); })
+                .AddHttpMessageHandler(sp =>
+                {
+                    var handler = sp.GetService<AuthorizationMessageHandler>()
+                        .ConfigureHandler(
+                            authorizedUrls: new[] {"https://ordersdemo.azurewebsites.net"},
+                            scopes: new[]
+                                {"https://BlazorB2C.onmicrosoft.com/49a5ea34-2ea6-42bb-9ed4-6076e169b1fc/Api.Access"});
 
-                 return handler;
-             });
+                    return handler;
+                });
 
             builder.Services.AddTransient(sp => sp.GetService<IHttpClientFactory>().CreateClient("api"));
 
@@ -40,6 +40,7 @@ namespace Orders.UI
             builder.Services.AddScoped<AccountClaimsPrincipalFactory<RemoteUserAccount>, OfflineAccountClaimsPrincipalFactory>();
 
             builder.Services.AddScoped<CartService>();
+            builder.Services.AddSingleton<NetworkService>();
 
             await builder.Build().RunAsync();
         }

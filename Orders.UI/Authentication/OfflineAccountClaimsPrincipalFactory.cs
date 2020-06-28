@@ -20,6 +20,7 @@ namespace Orders.UI.Authentication
 
         public override async ValueTask<ClaimsPrincipal> CreateUserAsync(RemoteUserAccount account, RemoteAuthenticationUserOptions options)
         {
+            Console.WriteLine("CreateUser");
             //var localVehiclesStore = _services.GetRequiredService<LocalVehiclesStore>();
 
             var result = await base.CreateUserAsync(account, options);
