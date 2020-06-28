@@ -6,6 +6,7 @@ using Orders.UI.Services;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Orders.UI.Authentication;
 
 namespace Orders.UI
 {
@@ -35,8 +36,8 @@ namespace Orders.UI
             builder.Services.AddMsalAuthentication(options =>
             {
                 builder.Configuration.Bind("AzureAdB2C", options.ProviderOptions.Authentication);
-                
             });
+            builder.Services.AddScoped<AccountClaimsPrincipalFactory<RemoteUserAccount>, OfflineAccountClaimsPrincipalFactory>();
 
             builder.Services.AddScoped<CartService>();
 
