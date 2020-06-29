@@ -2,6 +2,7 @@
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Orders.Shared;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,6 +30,14 @@ namespace Orders.Backend
                     Quantity = 1
                 });
             }
+
+            this.TimeStamp = DateTime.Now;
+        }
+
+        public void Set(IEnumerable<CartItem> cartItems)
+        {
+            this.Cart.Items.Clear();
+            this.Cart.Items.AddRange(cartItems);
 
             this.TimeStamp = DateTime.Now;
         }
