@@ -19,7 +19,7 @@ namespace Orders.Backend
            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mycart")] HttpRequestMessage req,
            [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal)
         {
-            var username = "des";// claimsPrincipal.FindFirst("name").Value;
+            var username = claimsPrincipal.FindFirst("name").Value;
 
             var entityId = new EntityId("CartEntity", username);
 
@@ -33,7 +33,7 @@ namespace Orders.Backend
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "mycart/products")] HttpRequestMessage req,
             [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal)
         {
-            var username = "des";// claimsPrincipal.FindFirst("name").Value;
+            var username = claimsPrincipal.FindFirst("name").Value;
             var entityId = new EntityId("CartEntity", username);
             
             var body = await req.Content.ReadAsStringAsync();
@@ -58,7 +58,7 @@ namespace Orders.Backend
             [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "mycart")] HttpRequestMessage req,
             [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal)
         {
-            var username = "des";// claimsPrincipal.FindFirst("name").Value;
+            var username = claimsPrincipal.FindFirst("name").Value;
             var entityId = new EntityId("CartEntity", username);
 
             var body = await req.Content.ReadAsStringAsync();
@@ -83,7 +83,7 @@ namespace Orders.Backend
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "mycart")] HttpRequestMessage req,
             [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal)
         {
-            var username = "des";// claimsPrincipal.FindFirst("name").Value;
+            var username = claimsPrincipal.FindFirst("name").Value;
             var entityId = new EntityId("CartEntity", username);
 
             var awaiter = client.GetDeletedAwaiter(entityId);
@@ -102,7 +102,7 @@ namespace Orders.Backend
             [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal,
             [ServiceBus("ordersQueue", Connection = "ServiceBusConnection")] IAsyncCollector<Cart> collector)
         {
-            var username = "des";// claimsPrincipal.FindFirst("name").Value;
+            var username = claimsPrincipal.FindFirst("name").Value;
             var entityId = new EntityId("CartEntity", username);
             var state = await client.ReadEntityStateAsync<CartEntity>(entityId);
 
