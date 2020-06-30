@@ -6,6 +6,7 @@ using Orders.UI.Services;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Blazored.LocalStorage;
 using Orders.UI.Authentication;
 
 namespace Orders.UI
@@ -39,8 +40,12 @@ namespace Orders.UI
             });
             builder.Services.AddScoped<AccountClaimsPrincipalFactory<RemoteUserAccount>, OfflineAccountClaimsPrincipalFactory>();
 
+            builder.Services.AddBlazoredLocalStorage();
+
+            builder.Services.AddScoped<ProductService>();
+            builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<CartService>();
-            builder.Services.AddSingleton<NetworkService>();
+            builder.Services.AddScoped<NetworkService>();
 
             await builder.Build().RunAsync();
         }

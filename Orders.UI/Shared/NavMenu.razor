@@ -2,6 +2,7 @@
 @inject NetworkService NetworkService
 <div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Orders.UI</a>
+    @* PWA *@
     @if (NetworkService.IsOnline)
     {
         <span style="color: green">Online</span>
