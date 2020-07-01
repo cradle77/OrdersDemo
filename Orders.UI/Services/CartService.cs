@@ -1,72 +1,142 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
-using Orders.Shared;
+﻿using Orders.Shared;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Blazored.LocalStorage;
 
 namespace Orders.UI.Services
 {
     public class CartService
     {
-        private HttpClient _client;
-        private AuthenticationStateProvider _stateProvider;
+        private readonly HttpClient _client;
+        private readonly ILocalStorageService _localStorageService;
+        private readonly NetworkService _networkService;
+        private Cart _cart;
+
+        private const string Key = "Cart";
 
         public event EventHandler CartUpdated;
 
-        public CartService(HttpClient client, AuthenticationStateProvider authenticationStateProvider)
+        public CartService(
+            HttpClient client,
+            ILocalStorageService localStorageService,
+            NetworkService networkService)
         {
             _client = client;
-            _stateProvider = authenticationStateProvider;
+            _localStorageService = localStorageService;
+            _networkService = networkService;
+
+            _networkService.OnlineChanged += OnlineChanged;
         }
 
-        public async Task AddProductToCartAsync(Product item)
-        {
-            await _client.PostAsJsonAsync($"api/mycart/products", item);
+        public bool PendingSynchronization { get; private set; }
 
-            this.CartUpdated?.Invoke(this, EventArgs.Empty);
+        public async Task AddProductToCartAsync(Product product)
+        {
+            if (_cart == null) return;
+
+            var item = _cart.Items.SingleOrDefault(p => p.Product.Id == product.Id);
+            if (item != null)
+            {
+                item.Quantity += 1;
+            }
+            else
+            {
+                _cart.Items.Add(new CartItem()
+                {
+                    Product = product,
+                    Quantity = 1
+                });
+            }
+
+            await SaveCartAsync();
+            await SynchronizeAsync();
+
+            OnCartUpdated();
         }
 
         public async Task EmptyCartAsync()
         {
-            await _client.DeleteAsync($"api/mycart/");
+            _cart = new Cart();
 
-            this.CartUpdated?.Invoke(this, EventArgs.Empty);
+            await SaveCartAsync();
+            await SynchronizeAsync();
+
+            OnCartUpdated();
         }
 
         public async Task DispatchCartAsync()
         {
+            if (!_networkService.IsOnline)
+            {
+                throw new InvalidOperationException("Cannot dispatch cart because app is offline");
+            }
             await _client.PostAsJsonAsync($"api/mycart/dispatch", new object());
 
             this.CartUpdated?.Invoke(this, EventArgs.Empty);
         }
 
-        public async Task<Cart> GetCart()
+        public async Task<Cart> GetCartAsync()
         {
-            try
+            if (_networkService.IsOnline)
             {
-                return await _client.GetFromJsonAsync<Cart>($"api/mycart/");
+                try
+                {
+                    _cart = await _client.GetFromJsonAsync<Cart>($"api/mycart/");
+                    await SaveCartAsync();
+                }
+                catch
+                {
+                    // race condition for when the access token becomes available
+                }
             }
-            catch
+            else
             {
-                // race condition for when the access token becomes available
-                return new Cart();
+                _cart = await _localStorageService.GetItemAsync<Cart>(Key);
             }
-            
+
+            return _cart ??= new Cart();
         }
 
-        private async Task<string> GetUsernameAsync()
+        private async Task SaveCartAsync()
         {
-            var context = await _stateProvider.GetAuthenticationStateAsync();
+            await _localStorageService.SetItemAsync(Key, _cart);
+        }
 
-            if (!context.User.Identity.IsAuthenticated)
+        private async Task SynchronizeAsync()
+        {
+            if (_cart == null || !_networkService.IsOnline)
             {
-                throw new InvalidOperationException("User must be authenticated");
+                PendingSynchronization = true;
+                return;
+            }
+            if (_cart.Items.Count == 0)
+            {
+                await _client.DeleteAsync($"api/mycart/");
+            }
+            else
+            {
+                await _client.PutAsJsonAsync($"api/mycart", _cart.Items);
             }
 
-            var username = context.User.Identity.Name;
-
-            return username;
+            await _localStorageService.RemoveItemAsync(Key);
+            _cart = null;
+            PendingSynchronization = false;
         }
+
+        private void OnCartUpdated()
+        {
+            CartUpdated?.Invoke(this, EventArgs.Empty);
+        }
+
+        private async void OnlineChanged(object sender, EventArgs e)
+        {
+            await SynchronizeAsync();
+
+            OnCartUpdated();
+        }
+
     }
 }

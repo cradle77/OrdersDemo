@@ -6,6 +6,8 @@ using Orders.UI.Services;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Blazored.LocalStorage;
+using Orders.UI.Authentication;
 
 namespace Orders.UI
 {
@@ -16,29 +18,34 @@ namespace Orders.UI
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddHttpClient("api", client =>
-            {
-                client.BaseAddress = new Uri("https://ordersdemo.azurewebsites.net");
-            })
-            .AddHttpMessageHandler(sp =>
-             {
-                 var handler = sp.GetService<AuthorizationMessageHandler>()
-                     .ConfigureHandler(
-                         authorizedUrls: new[] { "https://ordersdemo.azurewebsites.net" },
-                         scopes: new[] { "https://BlazorB2C.onmicrosoft.com/49a5ea34-2ea6-42bb-9ed4-6076e169b1fc/Api.Access" });
+            builder.Services
+                .AddHttpClient("api",
+                    client => { client.BaseAddress = new Uri("https://ordersdemo.azurewebsites.net"); })
+                .AddHttpMessageHandler(sp =>
+                {
+                    var handler = sp.GetService<AuthorizationMessageHandler>()
+                        .ConfigureHandler(
+                            authorizedUrls: new[] {"https://ordersdemo.azurewebsites.net"},
+                            scopes: new[]
+                                {"https://BlazorB2C.onmicrosoft.com/49a5ea34-2ea6-42bb-9ed4-6076e169b1fc/Api.Access"});
 
-                 return handler;
-             });
+                    return handler;
+                });
 
             builder.Services.AddTransient(sp => sp.GetService<IHttpClientFactory>().CreateClient("api"));
 
             builder.Services.AddMsalAuthentication(options =>
             {
                 builder.Configuration.Bind("AzureAdB2C", options.ProviderOptions.Authentication);
-                
             });
+            builder.Services.AddScoped<AccountClaimsPrincipalFactory<RemoteUserAccount>, OfflineAccountClaimsPrincipalFactory>();
 
+            builder.Services.AddBlazoredLocalStorage();
+
+            builder.Services.AddScoped<ProductService>();
+            builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<CartService>();
+            builder.Services.AddScoped<NetworkService>();
 
             await builder.Build().RunAsync();
         }

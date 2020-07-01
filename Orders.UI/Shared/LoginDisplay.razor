@@ -1,8 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Orders.UI.Services
 
 @inject NavigationManager Navigation
 @inject SignOutSessionStateManager SignOutManager
+@inject UserService UserService
 
 <AuthorizeView>
     <Authorized>
@@ -17,6 +19,7 @@
 @code{
     private async Task BeginLogout(MouseEventArgs args)
     {
+        await UserService.ResetAsync();
         await SignOutManager.SetSignOutState();
         Navigation.NavigateTo("authentication/logout");
     }

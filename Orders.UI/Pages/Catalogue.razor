@@ -1,5 +1,6 @@
 ﻿@page "/catalogue"
-@inject HttpClient Http
+@using Orders.UI.Services
+@inject ProductService ProductService
 @attribute [Authorize]
 
 <div class="container py-5">
@@ -37,6 +38,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _products = await Http.GetFromJsonAsync<Product[]>("api/products");
+        _products = await ProductService.GetProductsAsync();
     }
 }

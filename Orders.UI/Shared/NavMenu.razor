@@ -1,5 +1,16 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@using Orders.UI.Services
+@inject NetworkService NetworkService
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Orders.UI</a>
+    @* PWA *@
+    @if (NetworkService.IsOnline)
+    {
+        <span style="color: green">Online</span>
+    }
+    else
+    {
+        <span style="color: red">Offline</span>
+    }
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -39,7 +50,7 @@
             </NotAuthorized>
         </AuthorizeView>
     </div>
-    
+
 </div>
 
 @code {
@@ -51,4 +62,12 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        NetworkService.OnlineChanged += (s, e) => InvokeAsync(StateHasChanged);
+    }
+
 }

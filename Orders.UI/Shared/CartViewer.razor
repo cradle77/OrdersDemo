@@ -1,4 +1,5 @@
 ﻿@inject Orders.UI.Services.CartService CartService
+@inject NetworkService NetworkService
 @implements IDisposable
 
 <h3>CartViewer</h3>
@@ -25,7 +26,14 @@
     </div>
     <div class="row">
         <div class="col-6 align-content-md-start" style="padding:0">
-            <BusyButton class="btn btn-primary" OnClick="this.CartService.DispatchCartAsync">Order!</BusyButton>
+            @if (NetworkService.IsOnline)
+            {
+                <BusyButton class="btn btn-primary" OnClick="this.CartService.DispatchCartAsync">Order!</BusyButton>
+            }
+            else
+            {
+                <small>Cannot place the order while offline</small>
+            }
         </div>
         <div class="col-6 align-content-md-end" style="padding:0">
             <BusyButton class="btn btn-danger" OnClick="this.CartService.EmptyCartAsync">Empty!</BusyButton>
@@ -36,7 +44,7 @@
 @code {
     private Cart _cart;
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         base.OnInitialized();
 
@@ -47,7 +55,7 @@
 
     private async Task LoadDataAsync()
     {
-        _cart = await this.CartService.GetCart();
+        _cart = await this.CartService.GetCartAsync();
     }
 
     private async void Refresh(object sender, EventArgs e)
