@@ -16,20 +16,7 @@ namespace Orders.Backend
 
         public void Add(Product product)
         {
-            var item = this.Cart.Items.SingleOrDefault(p => p.Product.Id == product.Id);
-
-            if (item != null)
-            {
-                item.Quantity += 1;
-            }
-            else
-            {
-                this.Cart.Items.Add(new CartItem() 
-                {
-                    Product = product,
-                    Quantity = 1
-                });
-            }
+            this.Cart.Add(product);
 
             this.TimeStamp = DateTime.Now;
         }

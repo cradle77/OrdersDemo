@@ -37,19 +37,7 @@ namespace Orders.UI.Services
         {
             if (_cart == null) return;
 
-            var item = _cart.Items.SingleOrDefault(p => p.Product.Id == product.Id);
-            if (item != null)
-            {
-                item.Quantity += 1;
-            }
-            else
-            {
-                _cart.Items.Add(new CartItem()
-                {
-                    Product = product,
-                    Quantity = 1
-                });
-            }
+            _cart.Add(product);
 
             await SaveCartAsync();
             await SynchronizeAsync();
@@ -75,7 +63,7 @@ namespace Orders.UI.Services
             }
             await _client.PostAsJsonAsync($"api/mycart/dispatch", new object());
 
-            this.CartUpdated?.Invoke(this, EventArgs.Empty);
+            OnCartUpdated();
         }
 
         public async Task<Cart> GetCartAsync()
