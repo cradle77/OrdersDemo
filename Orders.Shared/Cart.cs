@@ -13,6 +13,7 @@ namespace Orders.Shared
         {
             get
             {
+                // total order amount
                 return this.Items.Sum(x => x.Amount);
             }
         }
