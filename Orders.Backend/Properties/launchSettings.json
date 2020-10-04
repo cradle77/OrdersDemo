@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Orders.Backend": {
+      "commandName": "Project"
+    }
+  }
+}

@@ -19,7 +19,7 @@ namespace Orders.Backend
            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mycart")] HttpRequestMessage req,
            [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal)
         {
-            var username = claimsPrincipal.FindFirst("name").Value;
+            var username = claimsPrincipal.GetUsername();
 
             var entityId = new EntityId("CartEntity", username);
 
@@ -33,7 +33,7 @@ namespace Orders.Backend
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "mycart/products")] HttpRequestMessage req,
             [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal)
         {
-            var username = claimsPrincipal.FindFirst("name").Value;
+            var username = claimsPrincipal.GetUsername();
             var entityId = new EntityId("CartEntity", username);
             
             var body = await req.Content.ReadAsStringAsync();
@@ -53,37 +53,12 @@ namespace Orders.Backend
             return req.CreateResponse(HttpStatusCode.Created);
         }
 
-        [FunctionName(nameof(SetCartItems))]
-        public static async Task<HttpResponseMessage> SetCartItems(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "mycart")] HttpRequestMessage req,
-            [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal)
-        {
-            var username = claimsPrincipal.FindFirst("name").Value;
-            var entityId = new EntityId("CartEntity", username);
-
-            var body = await req.Content.ReadAsStringAsync();
-
-            var cartItems = JsonConvert.DeserializeObject<CartItem[]>(body);
-
-            var awaiter = client.GetTimestampAwaiter(entityId);
-
-            await client.SignalEntityAsync<ICartActions>(entityId, x => x.SetOwner(username));
-
-            await client.SignalEntityAsync<ICartActions>(entityId, x => x.Set(cartItems));
-
-            await client.ResetTimeoutAsync(entityId);
-
-            await awaiter.SignalsProcessed();
-
-            return req.CreateResponse(HttpStatusCode.Accepted);
-        }
-
         [FunctionName(nameof(DeleteCart))]
         public static async Task<HttpResponseMessage> DeleteCart(
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "mycart")] HttpRequestMessage req,
             [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal)
         {
-            var username = claimsPrincipal.FindFirst("name").Value;
+            var username = claimsPrincipal.GetUsername();
             var entityId = new EntityId("CartEntity", username);
 
             var awaiter = client.GetDeletedAwaiter(entityId);
@@ -102,7 +77,7 @@ namespace Orders.Backend
             [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal,
             [ServiceBus("ordersQueue", Connection = "ServiceBusConnection")] IAsyncCollector<Cart> collector)
         {
-            var username = claimsPrincipal.FindFirst("name").Value;
+            var username = claimsPrincipal.GetUsername();
             var entityId = new EntityId("CartEntity", username);
             var state = await client.ReadEntityStateAsync<CartEntity>(entityId);
 
@@ -123,6 +98,15 @@ namespace Orders.Backend
             await awaiter.SignalsProcessed();
 
             return req.CreateResponse(HttpStatusCode.Accepted);
+        }
+
+        private static string GetUsername(this ClaimsPrincipal claimsPrincipal)
+        {
+#if DEBUG
+            return "testUser";
+#else
+            return claimsPrincipal.FindFirst("name").Value;
+#endif
         }
     }
 }

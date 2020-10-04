@@ -18,13 +18,21 @@ namespace Orders.UI
 
             builder.Services.AddHttpClient("api", client =>
             {
+#if DEBUG
+                client.BaseAddress = new Uri("http://127.0.0.1:7071");
+#else
                 client.BaseAddress = new Uri("https://ordersdemo.azurewebsites.net");
+#endif
             })
             .AddHttpMessageHandler(sp =>
              {
                  var handler = sp.GetService<AuthorizationMessageHandler>()
                      .ConfigureHandler(
+#if DEBUG
+                         authorizedUrls: new[] { "http://127.0.0.1:7071" },
+#else
                          authorizedUrls: new[] { "https://ordersdemo.azurewebsites.net" },
+#endif
                          scopes: new[] { "https://BlazorB2C.onmicrosoft.com/49a5ea34-2ea6-42bb-9ed4-6076e169b1fc/Api.Access" });
 
                  return handler;
