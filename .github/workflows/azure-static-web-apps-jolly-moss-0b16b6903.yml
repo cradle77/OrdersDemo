@@ -3,7 +3,8 @@ name: Azure Static Web Apps CI/CD
 on:
   push:
     branches:
-    - master
+      - master
+      - master-durable-entities
     paths: 
       - 'Orders.UI/**'
       - 'Orders.Shared/**'
@@ -19,6 +20,8 @@ jobs:
     name: Build and Deploy Job
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: ${{ github.ref }}
     
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1.4.0
