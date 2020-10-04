@@ -34,14 +34,6 @@ namespace Orders.Backend
             this.TimeStamp = DateTime.Now;
         }
 
-        public void Set(IEnumerable<CartItem> cartItems)
-        {
-            this.Cart.Items.Clear();
-            this.Cart.Items.AddRange(cartItems);
-
-            this.TimeStamp = DateTime.Now;
-        }
-
         public Task<Cart> Get()
         {
             return Task.FromResult(this.Cart);

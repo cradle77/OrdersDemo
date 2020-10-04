@@ -8,8 +8,6 @@ namespace Orders.Backend
     {
         void Add(Product product);
 
-        void Set(IEnumerable<CartItem> cartItems);
-
         void SetOwner(string owner);
 
         Task<Cart> Get();
