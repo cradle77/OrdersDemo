@@ -1,0 +1,203 @@
+<UserSettings><ApplicationIdentity version="16.0"/><ToolsOptions/><Category name="Environment_Group" RegisteredName="Environment_Group"><Category name="Environment_Toolbox" Category="{481999F2-7479-4e03-83D5-BE808BA142DF}" Package="{DA9FB551-C724-11d0-AE1F-00A0C90FFFC3}" RegisteredName="Environment_Toolbox" PackageName="Visual Studio Environment Package"><PropertyValue name="ShowAllTabs">false</PropertyValue><PropertyValue name="Version">1</PropertyValue><PropertyValue name="DeletedTabCount">0</PropertyValue><PropertyValue name="Tab0.Name">1 - CartEntity</PropertyValue><PropertyValue name="Tab0.View">0</PropertyValue><PropertyValue name="Tab0.UseDefaultName">false</PropertyValue><PropertyValue name="Tab0.RecordType">1</PropertyValue><PropertyValue name="Tab0.Position">55</PropertyValue><PropertyValue name="Tab0.OriginalName">1 - CartEntity</PropertyValue><PropertyValue name="Tab1.Name">2 - Functions</PropertyValue><PropertyValue name="Tab1.View">0</PropertyValue><PropertyValue name="Tab1.UseDefaultName">false</PropertyValue><PropertyValue name="Tab1.RecordType">1</PropertyValue><PropertyValue name="Tab1.Position">56</PropertyValue><PropertyValue name="Tab1.OriginalName">2 - Functions</PropertyValue><PropertyValue name="Tab2.Name">3 - Awaiter</PropertyValue><PropertyValue name="Tab2.View">0</PropertyValue><PropertyValue name="Tab2.UseDefaultName">false</PropertyValue><PropertyValue name="Tab2.RecordType">1</PropertyValue><PropertyValue name="Tab2.Position">57</PropertyValue><PropertyValue name="Tab2.OriginalName">3 - Awaiter</PropertyValue><PropertyValue name="Tab3.Name">4 - Timeout</PropertyValue><PropertyValue name="Tab3.View">0</PropertyValue><PropertyValue name="Tab3.UseDefaultName">false</PropertyValue><PropertyValue name="Tab3.RecordType">1</PropertyValue><PropertyValue name="Tab3.Position">58</PropertyValue><PropertyValue name="Tab3.OriginalName">4 - Timeout</PropertyValue><PropertyValue name="TabCount">4</PropertyValue><PropertyValue name="DeletedItemCount">0</PropertyValue><PropertyValue name="Item0.DataProvider">{0A057BAD-6706-45D2-A800-683A29EC6BA3}</PropertyValue><PropertyValue name="Item0.ID">90297B8A59AE3B776371515AE4B06B39</PropertyValue><PropertyValue name="Item0.Name">Text: public Cart Cart { get; set; } = new Cart();
+
+        public DateTime TimeStamp { get; set; }</PropertyValue><PropertyValue name="Item0.UseDefaultName">true</PropertyValue><PropertyValue name="Item0.Tab">1 - CartEntity</PropertyValue><PropertyValue name="Item0.OriginalTabID">General</PropertyValue><PropertyValue name="Item0.OriginalTab">General</PropertyValue><PropertyValue name="Item0.RecordType">1</PropertyValue><PropertyValue name="Item0.Data">public Cart Cart { get; set; } = new Cart();
+
+        public DateTime TimeStamp { get; set; }</PropertyValue><PropertyValue name="Item0.Position">1</PropertyValue><PropertyValue name="Item1.DataProvider">{0A057BAD-6706-45D2-A800-683A29EC6BA3}</PropertyValue><PropertyValue name="Item1.ID">639EA526D43B18C0A92C0F9E12DF2307</PropertyValue><PropertyValue name="Item1.Name">Text: public void Add(Product product)
+        {
+            var item = this.Cart.Items.SingleOrDefault(p =&gt; p.Product.Id == product.Id);
+
+            if (item != null)
+            {
+                item.Quantity += 1;
+            }
+            else
+            {
+                this.Cart.Items.Add(new CartItem() 
+                {
+                    Product = product,
+                    Quantity = 1
+                });
+            }
+
+            this.TimeStamp = DateTime.Now;
+        }
+
+        public Task&lt;Cart&gt; Get()
+        {
+            return Task.FromResult(this.Cart);
+        }
+
+        public void SetOwner(string owner)
+        {
+            this.Cart.Owner = owner;
+        }
+
+        public void Delete()
+        {
+            Entity.Current.DeleteState();
+        }</PropertyValue><PropertyValue name="Item1.UseDefaultName">true</PropertyValue><PropertyValue name="Item1.Tab">1 - CartEntity</PropertyValue><PropertyValue name="Item1.OriginalTabID">General</PropertyValue><PropertyValue name="Item1.OriginalTab">General</PropertyValue><PropertyValue name="Item1.RecordType">1</PropertyValue><PropertyValue name="Item1.Data">public void Add(Product product)
+        {
+            var item = this.Cart.Items.SingleOrDefault(p =&gt; p.Product.Id == product.Id);
+
+            if (item != null)
+            {
+                item.Quantity += 1;
+            }
+            else
+            {
+                this.Cart.Items.Add(new CartItem() 
+                {
+                    Product = product,
+                    Quantity = 1
+                });
+            }
+
+            this.TimeStamp = DateTime.Now;
+        }
+
+        public Task&lt;Cart&gt; Get()
+        {
+            return Task.FromResult(this.Cart);
+        }
+
+        public void SetOwner(string owner)
+        {
+            this.Cart.Owner = owner;
+        }
+
+        public void Delete()
+        {
+            Entity.Current.DeleteState();
+        }</PropertyValue><PropertyValue name="Item1.Position">2</PropertyValue><PropertyValue name="Item2.DataProvider">{0A057BAD-6706-45D2-A800-683A29EC6BA3}</PropertyValue><PropertyValue name="Item2.ID">1EF83AAAC81D45533097C4AB87C99DCB</PropertyValue><PropertyValue name="Item2.Name">Text: [FunctionName(nameof(GetCart))]
+        public static async Task&lt;HttpResponseMessage&gt; GetCart(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mycart")] HttpRequestMessage req,
+           [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal)
+        {
+            var username = claimsPrincipal.GetUsername();
+
+            var entityId = new EntityId("CartEntity", username);
+
+            var state = await client.ReadEntityStateAsync&lt;CartEntity&gt;(entityId);
+
+            return req.CreateResponse(state.EntityState?.Cart ?? new Cart());
+        }</PropertyValue><PropertyValue name="Item2.UseDefaultName">true</PropertyValue><PropertyValue name="Item2.Tab">2 - Functions</PropertyValue><PropertyValue name="Item2.OriginalTab">2 - Functions</PropertyValue><PropertyValue name="Item2.RecordType">1</PropertyValue><PropertyValue name="Item2.Data">[FunctionName(nameof(GetCart))]
+        public static async Task&lt;HttpResponseMessage&gt; GetCart(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mycart")] HttpRequestMessage req,
+           [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal)
+        {
+            var username = claimsPrincipal.GetUsername();
+
+            var entityId = new EntityId("CartEntity", username);
+
+            var state = await client.ReadEntityStateAsync&lt;CartEntity&gt;(entityId);
+
+            return req.CreateResponse(state.EntityState?.Cart ?? new Cart());
+        }</PropertyValue><PropertyValue name="Item2.Position">1</PropertyValue><PropertyValue name="Item3.DataProvider">{0A057BAD-6706-45D2-A800-683A29EC6BA3}</PropertyValue><PropertyValue name="Item3.ID">2ED2AA025A5C54FDE1A395C0FDBE7703</PropertyValue><PropertyValue name="Item3.Name">Text:         [FunctionName(nameof(AddProduct))]
+        public static async Task&lt;HttpResponseMessage&gt; AddProduct(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "mycart/products")] HttpRequestMessage req,
+            [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal)
+        {
+            var username = claimsPrincipal.GetUsername();
+            var entityId = new EntityId("CartEntity", username);
+            
+            var body = await req.Content.ReadAsStringAsync();
+
+            var product = JsonConvert.DeserializeObject&lt;Product&gt;(body);
+
+            await client.SignalEntityAsync&lt;ICartActions&gt;(entityId, x =&gt; x.SetOwner(username));
+
+            await client.SignalEntityAsync&lt;ICartActions&gt;(entityId, x =&gt; x.Add(product));
+
+            return req.CreateResponse(HttpStatusCode.Created);
+        }
+
+        [FunctionName(nameof(DeleteCart))]
+        public static async Task&lt;HttpResponseMessage&gt; DeleteCart(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "mycart")] HttpRequestMessage req,
+            [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal)
+        {
+            var username = claimsPrincipal.GetUsername();
+            var entityId = new EntityId("CartEntity", username);
+
+            await client.SignalEntityAsync&lt;ICartActions&gt;(entityId, x =&gt; x.Delete());
+
+            return req.CreateResponse(HttpStatusCode.Accepted);
+        }
+
+        [FunctionName(nameof(DispatchCart))]
+        public static async Task&lt;HttpResponseMessage&gt; DispatchCart(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "mycart/dispatch")] HttpRequestMessage req,
+            [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal,
+            [ServiceBus("ordersQueue", Connection = "ServiceBusConnection")] IAsyncCollector&lt;Cart&gt; collector)
+        {
+            var username = claimsPrincipal.GetUsername();
+            var entityId = new EntityId("CartEntity", username);
+            var state = await client.ReadEntityStateAsync&lt;CartEntity&gt;(entityId);
+
+            if (!state.EntityExists)
+            {
+                // we can't call dispatch on a non existing entity
+                return req.CreateErrorResponse(HttpStatusCode.BadRequest, "You can't call dispatch on a cart which doesn't exist");
+            }
+
+            await collector.AddAsync(state.EntityState.Cart);
+
+            // empty cart once it has been dispatched
+            await client.SignalEntityAsync&lt;ICartActions&gt;(entityId, x =&gt; x.Delete());
+
+            return req.CreateResponse(HttpStatusCode.Accepted);
+        }</PropertyValue><PropertyValue name="Item3.UseDefaultName">true</PropertyValue><PropertyValue name="Item3.Tab">2 - Functions</PropertyValue><PropertyValue name="Item3.OriginalTab">2 - Functions</PropertyValue><PropertyValue name="Item3.RecordType">1</PropertyValue><PropertyValue name="Item3.Data">        [FunctionName(nameof(AddProduct))]
+        public static async Task&lt;HttpResponseMessage&gt; AddProduct(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "mycart/products")] HttpRequestMessage req,
+            [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal)
+        {
+            var username = claimsPrincipal.GetUsername();
+            var entityId = new EntityId("CartEntity", username);
+            
+            var body = await req.Content.ReadAsStringAsync();
+
+            var product = JsonConvert.DeserializeObject&lt;Product&gt;(body);
+
+            await client.SignalEntityAsync&lt;ICartActions&gt;(entityId, x =&gt; x.SetOwner(username));
+
+            await client.SignalEntityAsync&lt;ICartActions&gt;(entityId, x =&gt; x.Add(product));
+
+            return req.CreateResponse(HttpStatusCode.Created);
+        }
+
+        [FunctionName(nameof(DeleteCart))]
+        public static async Task&lt;HttpResponseMessage&gt; DeleteCart(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "mycart")] HttpRequestMessage req,
+            [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal)
+        {
+            var username = claimsPrincipal.GetUsername();
+            var entityId = new EntityId("CartEntity", username);
+
+            await client.SignalEntityAsync&lt;ICartActions&gt;(entityId, x =&gt; x.Delete());
+
+            return req.CreateResponse(HttpStatusCode.Accepted);
+        }
+
+        [FunctionName(nameof(DispatchCart))]
+        public static async Task&lt;HttpResponseMessage&gt; DispatchCart(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "mycart/dispatch")] HttpRequestMessage req,
+            [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal,
+            [ServiceBus("ordersQueue", Connection = "ServiceBusConnection")] IAsyncCollector&lt;Cart&gt; collector)
+        {
+            var username = claimsPrincipal.GetUsername();
+            var entityId = new EntityId("CartEntity", username);
+            var state = await client.ReadEntityStateAsync&lt;CartEntity&gt;(entityId);
+
+            if (!state.EntityExists)
+            {
+                // we can't call dispatch on a non existing entity
+                return req.CreateErrorResponse(HttpStatusCode.BadRequest, "You can't call dispatch on a cart which doesn't exist");
+            }
+
+            await collector.AddAsync(state.EntityState.Cart);
+
+            // empty cart once it has been dispatched
+            await client.SignalEntityAsync&lt;ICartActions&gt;(entityId, x =&gt; x.Delete());
+
+            return req.CreateResponse(HttpStatusCode.Accepted);
+        }</PropertyValue><PropertyValue name="Item3.Position">2</PropertyValue><PropertyValue name="Item4.DataProvider">{0A057BAD-6706-45D2-A800-683A29EC6BA3}</PropertyValue><PropertyValue name="Item4.ID">C4FD65810E8EFEEC7990779075659DED</PropertyValue><PropertyValue name="Item4.Name">Text: var awaiter = client.GetTimestampAwaiter(entityId);</PropertyValue><PropertyValue name="Item4.UseDefaultName">true</PropertyValue><PropertyValue name="Item4.Tab">3 - Awaiter</PropertyValue><PropertyValue name="Item4.OriginalTab">3 - Awaiter</PropertyValue><PropertyValue name="Item4.RecordType">1</PropertyValue><PropertyValue name="Item4.Data">var awaiter = client.GetTimestampAwaiter(entityId);</PropertyValue><PropertyValue name="Item4.Position">1</PropertyValue><PropertyValue name="Item5.DataProvider">{0A057BAD-6706-45D2-A800-683A29EC6BA3}</PropertyValue><PropertyValue name="Item5.ID">ACF42E13872BDC28461977E1A42B80D4</PropertyValue><PropertyValue name="Item5.Name">Text: await awaiter.SignalsProcessed();</PropertyValue><PropertyValue name="Item5.UseDefaultName">true</PropertyValue><PropertyValue name="Item5.Tab">3 - Awaiter</PropertyValue><PropertyValue name="Item5.OriginalTabID">General</PropertyValue><PropertyValue name="Item5.OriginalTab">General</PropertyValue><PropertyValue name="Item5.RecordType">1</PropertyValue><PropertyValue name="Item5.Data">await awaiter.SignalsProcessed();</PropertyValue><PropertyValue name="Item5.Position">2</PropertyValue><PropertyValue name="Item6.DataProvider">{0A057BAD-6706-45D2-A800-683A29EC6BA3}</PropertyValue><PropertyValue name="Item6.ID">3B74FF7D0B1E63E1832C541017B7F0E3</PropertyValue><PropertyValue name="Item6.Name">Text: var awaiter = client.GetDeletedAwaiter(entityId);</PropertyValue><PropertyValue name="Item6.UseDefaultName">true</PropertyValue><PropertyValue name="Item6.Tab">3 - Awaiter</PropertyValue><PropertyValue name="Item6.OriginalTab">3 - Awaiter</PropertyValue><PropertyValue name="Item6.RecordType">1</PropertyValue><PropertyValue name="Item6.Data">var awaiter = client.GetDeletedAwaiter(entityId);</PropertyValue><PropertyValue name="Item6.Position">3</PropertyValue><PropertyValue name="Item7.DataProvider">{0A057BAD-6706-45D2-A800-683A29EC6BA3}</PropertyValue><PropertyValue name="Item7.ID">170ECEA1EC99C235809ADA701E9102B9</PropertyValue><PropertyValue name="Item7.Name">Text: await client.ResetTimeoutAsync(entityId);</PropertyValue><PropertyValue name="Item7.UseDefaultName">true</PropertyValue><PropertyValue name="Item7.Tab">4 - Timeout</PropertyValue><PropertyValue name="Item7.OriginalTab">4 - Timeout</PropertyValue><PropertyValue name="Item7.RecordType">1</PropertyValue><PropertyValue name="Item7.Data">await client.ResetTimeoutAsync(entityId);</PropertyValue><PropertyValue name="Item7.Position">1</PropertyValue><PropertyValue name="Item8.DataProvider">{0A057BAD-6706-45D2-A800-683A29EC6BA3}</PropertyValue><PropertyValue name="Item8.ID">37958010798F0D3F9319D969234FEBA7</PropertyValue><PropertyValue name="Item8.Name">Text: await client.CancelTimeoutAsync(entityId);</PropertyValue><PropertyValue name="Item8.UseDefaultName">true</PropertyValue><PropertyValue name="Item8.Tab">4 - Timeout</PropertyValue><PropertyValue name="Item8.OriginalTab">4 - Timeout</PropertyValue><PropertyValue name="Item8.RecordType">1</PropertyValue><PropertyValue name="Item8.Data">await client.CancelTimeoutAsync(entityId);</PropertyValue><PropertyValue name="Item8.Position">2</PropertyValue><PropertyValue name="Item9.DataProvider">{0A057BAD-6706-45D2-A800-683A29EC6BA3}</PropertyValue><PropertyValue name="Item9.ID">37958010798F0D3F9319D969234FEBA7</PropertyValue><PropertyValue name="Item9.Name">Text: await client.CancelTimeoutAsync(entityId);</PropertyValue><PropertyValue name="Item9.UseDefaultName">true</PropertyValue><PropertyValue name="Item9.Tab">4 - Timeout</PropertyValue><PropertyValue name="Item9.OriginalTab">4 - Timeout</PropertyValue><PropertyValue name="Item9.RecordType">1</PropertyValue><PropertyValue name="Item9.Data">await client.CancelTimeoutAsync(entityId);</PropertyValue><PropertyValue name="Item9.Position">3</PropertyValue><PropertyValue name="ItemCount">10</PropertyValue></Category></Category></UserSettings>
