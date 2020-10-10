@@ -24,6 +24,8 @@ namespace Orders.UI.Services
         {
             await _client.PostAsJsonAsync($"api/mycart/products", item);
 
+            await Task.Delay(1000);
+
             this.CartUpdated?.Invoke(this, EventArgs.Empty);
         }
 

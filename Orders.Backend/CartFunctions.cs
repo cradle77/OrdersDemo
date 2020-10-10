@@ -15,7 +15,7 @@ namespace Orders.Backend
         [FunctionName(nameof(GetCart))]
         public static async Task<HttpResponseMessage> GetCart(
            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mycart")] HttpRequestMessage req,
-           [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal)
+           [DurableClient] IDurableClient client, ClaimsPrincipal claimsPrincipal)
         {
             var username = claimsPrincipal.GetUsername();
 
