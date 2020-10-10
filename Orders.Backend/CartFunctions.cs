@@ -46,8 +46,6 @@ namespace Orders.Backend
 
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.Add(product));
 
-            await client.ResetTimeoutAsync(entityId);
-
             await awaiter.SignalsProcessed();
 
             return req.CreateResponse(HttpStatusCode.Created);
@@ -64,7 +62,6 @@ namespace Orders.Backend
             var awaiter = client.GetDeletedAwaiter(entityId);
 
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.Delete());
-            await client.CancelTimeoutAsync(entityId);
 
             await awaiter.SignalsProcessed();
 
@@ -93,7 +90,6 @@ namespace Orders.Backend
 
             // empty cart once it has been dispatched
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.Delete());
-            await client.CancelTimeoutAsync(entityId);
 
             await awaiter.SignalsProcessed();
 
