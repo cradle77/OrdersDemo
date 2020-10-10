@@ -3,11 +3,9 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json;
 using Orders.Shared;
-using System;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Orders.Backend
@@ -28,6 +26,7 @@ namespace Orders.Backend
             return req.CreateResponse(state.EntityState?.Cart ?? new Cart());
         }
 
+        #region Other operations
         [FunctionName(nameof(AddProduct))]
         public static async Task<HttpResponseMessage> AddProduct(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "mycart/products")] HttpRequestMessage req,
@@ -35,23 +34,18 @@ namespace Orders.Backend
         {
             var username = claimsPrincipal.GetUsername();
             var entityId = new EntityId("CartEntity", username);
-            
+
             var body = await req.Content.ReadAsStringAsync();
 
             var product = JsonConvert.DeserializeObject<Product>(body);
-
-            var awaiter = client.GetTimestampAwaiter(entityId);
 
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.SetOwner(username));
 
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.Add(product));
 
-            await client.ResetTimeoutAsync(entityId);
-
-            await awaiter.SignalsProcessed();
-
             return req.CreateResponse(HttpStatusCode.Created);
         }
+
 
         [FunctionName(nameof(DeleteCart))]
         public static async Task<HttpResponseMessage> DeleteCart(
@@ -61,12 +55,7 @@ namespace Orders.Backend
             var username = claimsPrincipal.GetUsername();
             var entityId = new EntityId("CartEntity", username);
 
-            var awaiter = client.GetDeletedAwaiter(entityId);
-
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.Delete());
-            await client.CancelTimeoutAsync(entityId);
-
-            await awaiter.SignalsProcessed();
 
             return req.CreateResponse(HttpStatusCode.Accepted);
         }
@@ -89,16 +78,12 @@ namespace Orders.Backend
 
             await collector.AddAsync(state.EntityState.Cart);
 
-            var awaiter = client.GetDeletedAwaiter(entityId);
-
             // empty cart once it has been dispatched
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.Delete());
-            await client.CancelTimeoutAsync(entityId);
-
-            await awaiter.SignalsProcessed();
 
             return req.CreateResponse(HttpStatusCode.Accepted);
         }
+        #endregion
 
         private static string GetUsername(this ClaimsPrincipal claimsPrincipal)
         {
