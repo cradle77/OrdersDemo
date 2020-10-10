@@ -3,11 +3,9 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Newtonsoft.Json;
 using Orders.Shared;
-using System;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Orders.Backend
