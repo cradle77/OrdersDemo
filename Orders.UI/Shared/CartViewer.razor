@@ -1,4 +1,6 @@
 ﻿@inject Orders.UI.Services.CartService CartService
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.SignalR.Client
 @implements IDisposable
 
 <h3>CartViewer</h3>
@@ -34,13 +36,24 @@
 </div>
 
 @code {
+    private HubConnection hubConnection;
     private Cart _cart;
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         base.OnInitialized();
 
-        this.CartService.CartUpdated += this.Refresh;
+        hubConnection = new HubConnectionBuilder()
+        .WithUrl("http://127.0.0.1:7071/api/", options =>
+        {
+            // note: test only, do not use in production
+            options.Headers.Add("x-ms-client-principal-id", "testUser");
+        })
+        .Build();
+
+        hubConnection.On("cartUpdated", () => this.Refresh(null, EventArgs.Empty));
+
+        await hubConnection.StartAsync();
 
         await this.LoadDataAsync();
     }
@@ -59,6 +72,6 @@
 
     public void Dispose()
     {
-        this.CartService.CartUpdated -= this.Refresh;
+        _ = hubConnection.DisposeAsync();
     }
 }

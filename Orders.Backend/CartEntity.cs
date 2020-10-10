@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Orders.Shared;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,13 @@ namespace Orders.Backend
 {
     public class CartEntity : ICartActions
     {
+        private IAsyncCollector<SignalRMessage> signalRMessages;
+
+        public CartEntity(IAsyncCollector<SignalRMessage> signalRMessages)
+        {
+            this.signalRMessages = signalRMessages;
+        }
+
         public Cart Cart { get; set; } = new Cart();
 
         public DateTime TimeStamp { get; set; }
@@ -32,6 +40,8 @@ namespace Orders.Backend
             }
 
             this.TimeStamp = DateTime.Now;
+
+            this.signalRMessages.AddAsync(new SignalRMessage() { UserId = this.Cart.Owner, Target = "CartChanged" });
         }
 
         public Task<Cart> Get()
@@ -47,14 +57,18 @@ namespace Orders.Backend
         public void Delete()
         {
             Entity.Current.DeleteState();
+
+            this.signalRMessages.AddAsync(new SignalRMessage() { UserId = this.Cart.Owner, Target = "CartChanged" });
         }
 
         [FunctionName(nameof(CartEntity))]
-        public static Task Run([EntityTrigger] IDurableEntityContext ctx)
+        public static Task Run([EntityTrigger] IDurableEntityContext ctx,
+            [SignalR(HubName = "CartNotifications",
+            ConnectionStringSetting = "AzureSignalRConnectionString")] IAsyncCollector<SignalRMessage> signalRMessages)
         {
             if (!ctx.HasState)
             {
-                ctx.SetState(new CartEntity());
+                ctx.SetState(new CartEntity(signalRMessages));
             }
 
             return ctx.DispatchAsync<CartEntity>();

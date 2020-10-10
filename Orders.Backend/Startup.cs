@@ -1,18 +1,19 @@
 ﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Orders.Backend.Data;
 using System;
 
-[assembly: FunctionsStartup(typeof(Orders.Backend.Startup))]
+[assembly: WebJobsStartup(typeof(Orders.Backend.Startup))]
 
 
 namespace Orders.Backend
 {
-    class Startup : FunctionsStartup
+    class Startup : IWebJobsStartup
     {
-        public override void Configure(IFunctionsHostBuilder builder)
+        public void Configure(IWebJobsBuilder builder)
         {
             string SqlConnection = Environment.GetEnvironmentVariable("ConnectionStrings:SqlConnectionString") ??
                 Environment.GetEnvironmentVariable("SQLAZURECONNSTR_SqlConnectionString");
