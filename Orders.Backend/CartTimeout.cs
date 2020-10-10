@@ -39,7 +39,8 @@ namespace Orders.Backend
 
             using (var timeout = new CancellationTokenSource())
             {
-                DateTime dueTime = ctx.CurrentUtcDateTime.AddMinutes(30);
+                //DateTime dueTime = ctx.CurrentUtcDateTime.AddMinutes(30);
+                DateTime dueTime = ctx.CurrentUtcDateTime.AddMinutes(1);
                 Task durableTimeout = ctx.CreateTimer(dueTime, timeout.Token);
 
                 Task cancelEvent = ctx.WaitForExternalEvent("TimeoutReset");
