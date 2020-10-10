@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 using Newtonsoft.Json;
 using Orders.Shared;
 using System;
@@ -17,7 +18,8 @@ namespace Orders.Backend
         [FunctionName(nameof(GetCart))]
         public static async Task<HttpResponseMessage> GetCart(
            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "mycart")] HttpRequestMessage req,
-           [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal)
+           [DurableClient] IDurableEntityClient client, ClaimsPrincipal claimsPrincipal, [SignalR(HubName = "CartNotifications",
+            ConnectionStringSetting = "AzureSignalRConnectionString")] IAsyncCollector<SignalRMessage> signalRMessages)
         {
             var username = claimsPrincipal.GetUsername();
 

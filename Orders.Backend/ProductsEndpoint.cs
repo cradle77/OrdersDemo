@@ -17,9 +17,18 @@ namespace Orders.Backend
     {
         private OrdersContext _db;
 
-        public ProductsEndpoint(OrdersContext db)
+        public ProductsEndpoint()
         {
-            _db = db;
+            string SqlConnection = Environment.GetEnvironmentVariable("ConnectionStrings:SqlConnectionString") ??
+                Environment.GetEnvironmentVariable("SQLAZURECONNSTR_SqlConnectionString");
+
+            var builder = new DbContextOptionsBuilder<OrdersContext>()
+                .UseSqlServer(SqlConnection, configure =>
+                {
+                    configure.EnableRetryOnFailure();
+                });
+
+            _db = new OrdersContext(builder.Options);
         }
 
         [FunctionName("Products")]

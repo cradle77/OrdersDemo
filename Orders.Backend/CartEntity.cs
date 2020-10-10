@@ -22,7 +22,7 @@ namespace Orders.Backend
 
         public DateTime TimeStamp { get; set; }
 
-        public void Add(Product product)
+        public async void Add(Product product)
         {
             var item = this.Cart.Items.SingleOrDefault(p => p.Product.Id == product.Id);
 
@@ -41,7 +41,7 @@ namespace Orders.Backend
 
             this.TimeStamp = DateTime.Now;
 
-            this.signalRMessages.AddAsync(new SignalRMessage() { UserId = this.Cart.Owner, Target = "CartChanged" });
+            await this.signalRMessages.AddAsync(new SignalRMessage() { UserId = this.Cart.Owner, Target = "CartChanged", Arguments = new object[0] });
         }
 
         public Task<Cart> Get()
@@ -54,11 +54,11 @@ namespace Orders.Backend
             this.Cart.Owner = owner;
         }
 
-        public void Delete()
+        public async void Delete()
         {
             Entity.Current.DeleteState();
 
-            this.signalRMessages.AddAsync(new SignalRMessage() { UserId = this.Cart.Owner, Target = "CartChanged" });
+            await this.signalRMessages.AddAsync(new SignalRMessage() { UserId = this.Cart.Owner, Target = "CartChanged", Arguments = new object[0] });
         }
 
         [FunctionName(nameof(CartEntity))]
@@ -71,7 +71,7 @@ namespace Orders.Backend
                 ctx.SetState(new CartEntity(signalRMessages));
             }
 
-            return ctx.DispatchAsync<CartEntity>();
+            return ctx.DispatchAsync<CartEntity>(signalRMessages);
         }
     }
 }
