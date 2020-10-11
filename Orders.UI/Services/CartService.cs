@@ -40,6 +40,8 @@ namespace Orders.UI.Services
         public async Task AddProductToCartAsync(Product item)
         {
             await _client.PostAsJsonAsync($"api/mycart/products", item);
+
+            this.CartUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         public async Task EmptyCartAsync()

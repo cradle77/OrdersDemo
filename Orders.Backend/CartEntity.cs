@@ -11,19 +11,14 @@ namespace Orders.Backend
 {
     public class CartEntity : ICartActions
     {
+        private IAsyncCollector<SignalRMessage> signalRMessages;
+
         public CartEntity()
         { }
 
         public CartEntity(string owner, IAsyncCollector<SignalRMessage> signalRMessages)
-            : this(signalRMessages)
         {
             this.Cart.Owner = owner;
-        }
-
-        private IAsyncCollector<SignalRMessage> signalRMessages;
-
-        public CartEntity(IAsyncCollector<SignalRMessage> signalRMessages)
-        {
             this.signalRMessages = signalRMessages;
         }
 
@@ -58,7 +53,7 @@ namespace Orders.Backend
             return Task.FromResult(this.Cart);
         }
 
-        public void Delete()
+        public async void Delete()
         {
             Entity.Current.DeleteState();
 
@@ -75,7 +70,7 @@ namespace Orders.Backend
                 ctx.SetState(new CartEntity(ctx.EntityKey, signalRMessages));
             }
 
-            return ctx.DispatchAsync<CartEntity>(signalRMessages);
+            return ctx.DispatchAsync<CartEntity>(ctx.EntityKey, signalRMessages);
         }
     }
 }
