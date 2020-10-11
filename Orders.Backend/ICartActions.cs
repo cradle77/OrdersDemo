@@ -8,8 +8,6 @@ namespace Orders.Backend
     {
         void Add(Product product);
 
-        void SetOwner(string owner);
-
         Task<Cart> Get();
 
         void Delete();
