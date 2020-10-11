@@ -40,8 +40,6 @@ namespace Orders.Backend
 
             var awaiter = client.GetTimestampAwaiter(entityId);
 
-            await client.SignalEntityAsync<ICartActions>(entityId, x => x.SetOwner(username));
-
             await client.SignalEntityAsync<ICartActions>(entityId, x => x.Add(product));
 
             await awaiter.SignalsProcessed();

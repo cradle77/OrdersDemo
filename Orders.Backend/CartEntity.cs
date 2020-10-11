@@ -10,6 +10,14 @@ namespace Orders.Backend
 {
     public class CartEntity : ICartActions
     {
+        public CartEntity()
+        { }
+
+        public CartEntity(string owner)
+        {
+            this.Cart.Owner = owner;
+        }
+
         public Cart Cart { get; set; } = new Cart();
 
         public DateTime TimeStamp { get; set; }
@@ -39,11 +47,6 @@ namespace Orders.Backend
             return Task.FromResult(this.Cart);
         }
 
-        public void SetOwner(string owner)
-        {
-            this.Cart.Owner = owner;
-        }
-
         public void Delete()
         {
             Entity.Current.DeleteState();
@@ -54,7 +57,7 @@ namespace Orders.Backend
         {
             if (!ctx.HasState)
             {
-                ctx.SetState(new CartEntity());
+                ctx.SetState(new CartEntity(ctx.EntityKey));
             }
 
             return ctx.DispatchAsync<CartEntity>();
