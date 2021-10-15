@@ -17,7 +17,7 @@ namespace Orders.Backend
         {
             if (!ctx.HasState)
             {
-                ctx.SetState(new CartEntity());
+                //ctx.SetState(new CartEntity(ctx.EntityKey));
             }
 
             return ctx.DispatchAsync<CartEntity>();
