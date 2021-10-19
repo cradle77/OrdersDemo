@@ -6,12 +6,7 @@ namespace Orders.Backend
 {
     public static class SyncUtility
     {
-        public interface IEntityAwaiter
-        {
-            Task SignalsProcessed();
-        }
-
-        private class DeletedAwaiter : IEntityAwaiter
+        private class DeletedAwaiter : IAsyncDisposable
         {
             private IDurableEntityClient _client;
             private EntityId _id;
@@ -22,7 +17,7 @@ namespace Orders.Backend
                 _id = id;
             }
 
-            public async Task SignalsProcessed()
+            public async ValueTask DisposeAsync()
             {
                 var state = await _client.ReadEntityStateAsync<CartEntity>(_id);
 
@@ -35,7 +30,7 @@ namespace Orders.Backend
             }
         }
 
-        private class TimeStampAwaiter : IEntityAwaiter
+        private class TimeStampAwaiter : IAsyncDisposable
         {
             private IDurableEntityClient _client;
             private EntityId _id;
@@ -48,7 +43,7 @@ namespace Orders.Backend
                 _timestamp = DateTime.Now;
             }
 
-            public async Task SignalsProcessed()
+            public async ValueTask DisposeAsync()
             {
                 var state = await _client.ReadEntityStateAsync<CartEntity>(_id);
 
@@ -61,12 +56,12 @@ namespace Orders.Backend
             }
         }
 
-        public static IEntityAwaiter GetDeletedAwaiter(this IDurableEntityClient client, EntityId id)
+        public static IAsyncDisposable GetDeletedAwaiter(this IDurableEntityClient client, EntityId id)
         {
             return new DeletedAwaiter(client, id);
         }
 
-        public static IEntityAwaiter GetTimestampAwaiter(this IDurableEntityClient client, EntityId id)
+        public static IAsyncDisposable GetTimestampAwaiter(this IDurableEntityClient client, EntityId id)
         {
             return new TimeStampAwaiter(client, id);
         }

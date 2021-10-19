@@ -38,11 +38,10 @@ namespace Orders.Backend
 
             var product = JsonConvert.DeserializeObject<Product>(body);
 
-            var awaiter = client.GetTimestampAwaiter(entityId);
-
-            await client.SignalEntityAsync<ICartActions>(entityId, x => x.Add(product));
-
-            await awaiter.SignalsProcessed();
+            await using (var awaiter = client.GetTimestampAwaiter(entityId))
+            { 
+                await client.SignalEntityAsync<ICartActions>(entityId, x => x.Add(product));
+            }
 
             return req.CreateResponse(HttpStatusCode.Created);
         }
@@ -55,11 +54,10 @@ namespace Orders.Backend
             var username = claimsPrincipal.GetUsername();
             var entityId = new EntityId("CartEntity", username);
 
-            var awaiter = client.GetDeletedAwaiter(entityId);
-
-            await client.SignalEntityAsync<ICartActions>(entityId, x => x.Delete());
-
-            await awaiter.SignalsProcessed();
+            await using (var awaiter = client.GetDeletedAwaiter(entityId))
+            {
+                await client.SignalEntityAsync<ICartActions>(entityId, x => x.Delete());
+            }
 
             return req.CreateResponse(HttpStatusCode.Accepted);
         }
@@ -82,12 +80,11 @@ namespace Orders.Backend
 
             await collector.AddAsync(state.EntityState.Cart);
 
-            var awaiter = client.GetDeletedAwaiter(entityId);
-
-            // empty cart once it has been dispatched
-            await client.SignalEntityAsync<ICartActions>(entityId, x => x.Delete());
-
-            await awaiter.SignalsProcessed();
+            await using (var awaiter = client.GetDeletedAwaiter(entityId))
+            {
+                // empty cart once it has been dispatched
+                await client.SignalEntityAsync<ICartActions>(entityId, x => x.Delete());
+            }
 
             return req.CreateResponse(HttpStatusCode.Accepted);
         }
